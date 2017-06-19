@@ -1,7 +1,9 @@
 package startup
 
-/**
-  * Created by user on 6/12/17.
+
+/** Singleton  Object twStat which hold all the total information capture by the Tw_Collector
+  *
+  *  @constructor
   */
 object twStat {
 
@@ -40,6 +42,11 @@ object twStat {
 
   var twTimeUnit : String = "sec"
 
+
+
+  /** Method  Use for Compute the Percent
+    *
+    */
   def Percent : Unit = {
 
     // Emoji Percent
@@ -56,10 +63,13 @@ object twStat {
     twPerMinutes    =  Math.round((Twitter_Total.toDouble / (twTime.toDouble / 60)))
     twPerHour       =  Math.round((Twitter_Total.toDouble / (twTime.toDouble / 120)))
 
-
   }
 
 
+
+  /** Method  Use Initialize Data
+    *
+    */
   def init : Unit = {
     Twitter_Total = 0 ; Emoji_Total = 0 ; HashTag_Total = 0 ;  URL_Total = 0 ; Domain_Total = 0 ; Photo_Total  = 0
         twTime = 0
@@ -68,4 +78,10 @@ object twStat {
 }
 
 
+/** Case Class twStatus use for Reporting the information back to the user. It use for be convert to JSON
+  *
+  *  @constructor create a new twStatus with code and msg
+  *  @param code the code name
+  *  @param msg message description for the code
+  */
 case class  twStatus (code : String, msg : String)

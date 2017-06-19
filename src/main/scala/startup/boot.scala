@@ -9,11 +9,18 @@ import spark.{Request, Response}
 import sun.misc.{Signal, SignalHandler}
 
 
-/**
-  * Created by user on 6/12/17.
+/** Singleton Application Object Twitter Rest Services Application. Entry Point for the application
+  *
+  *  @author angel Figueroa Cruz
+  *  @version 1.0.0
+  *  @constructor
   */
 object boot extends App with SignalHandler {
 
+  //--------------------------------------------------------------------------------------------------------------------
+  // Vertion of the Application
+  //--------------------------------------------------------------------------------------------------------------------
+  val Version = "1.0.0"
 
   //--------------------------------------------------------------------------------------------------------------------
   // Calculate the number of processors
@@ -43,10 +50,10 @@ object boot extends App with SignalHandler {
   // Log
   //--------------------------------------------------------------------------------------------------------------------
   val logger = LoggerFactory. getLogger("boot")
-  logger.info(s"Twitter REST Server Version 1.0.0 No. of Processor ${procs}")
+  logger.info(s"Twitter REST Server Version ${Version} No. of Processor ${procs}")
 
   //--------------------------------------------------------------------------------------------------------------------
-  // Configuration
+  // HTTP Port Configuration
   //--------------------------------------------------------------------------------------------------------------------
    val ServerPort = 8090
 
@@ -65,6 +72,8 @@ object boot extends App with SignalHandler {
   get("/tw/domaintop"  , (request: Request, response: Response) => getTwDomainTop   (request, response))
   get("/tw/urltop"     , (request: Request, response: Response) => getTwURLTop      (request, response))
   get("/tw/photo"      , (request: Request, response: Response) => getPhotoTop      (request, response))
+  get("/tw/init"       , (request: Request, response: Response) => initTw           (request, response))
+
 
 
 
@@ -78,12 +87,23 @@ object boot extends App with SignalHandler {
     System.exit(0)
   }
 
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/version <- Get the Versiotn of the Application
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwVersion (req : Request, res : Response) : String = {
     logger.info (s"Request initTw ----> ")
-    ggson.toJson(twStatus ("200", "Tw-Rest - Version 1.0.0"))
+    ggson.toJson(twStatus ("200", s"Tw-Rest - Version ${Version}"))
   }
 
 
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/init <- Initialization of Data
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def initTw (req : Request, res : Response) : String = {
 
     logger.info (s"Request initTw ----> ")
@@ -97,6 +117,12 @@ object boot extends App with SignalHandler {
 
   }
 
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/hashtags <- Generate a List with all Tags capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwTags (req : Request, res : Response) : String = {
 
     logger.info (s"Request getTwTags ----> ")
@@ -109,8 +135,6 @@ object boot extends App with SignalHandler {
     var tags = new java.util.HashMap [String,Long] ()
     cacheHashTag.forEach(item => {
       tags.put(item.getKey, item.getValue.toLong)
-         System.out.println (s" Key ${item.getKey} Value ${item.getValue} ")
-
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -122,6 +146,11 @@ object boot extends App with SignalHandler {
   }
 
 
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/emoji <- Generate a List with all Emoji capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwEmoji (req : Request, res : Response) : String = {
 
     logger.info (s"Request getTwEmoji ----> ")
@@ -135,8 +164,6 @@ object boot extends App with SignalHandler {
     var tags = new java.util.HashMap [String,Long] ()
     emojitop.forEach(item => {
       tags.put(item.getKey, item.getValue.toLong)
-      System.out.println (s" Key ${item.getKey} Value ${item.getValue} ")
-
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -146,6 +173,12 @@ object boot extends App with SignalHandler {
 
   }
 
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/domaintop <- Generate a List with all Domain capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwDomainTop (req : Request, res : Response) : String = {
 
     logger.info (s"Request getTwDomainTop ----> ")
@@ -158,8 +191,6 @@ object boot extends App with SignalHandler {
     var dtop = new java.util.HashMap [String,Long] ()
     DomainTopIgnite.forEach(item => {
       dtop.put(item.getKey, item.getValue.toLong)
-      System.out.println (s" Key ${item.getKey} Value ${item.getValue} ")
-
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -169,6 +200,12 @@ object boot extends App with SignalHandler {
 
   }
 
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/urltop <- Generate a List with all URL capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwURLTop (req : Request, res : Response) : String = {
 
     logger.info (s"Request getTwURLTop ----> ")
@@ -181,8 +218,6 @@ object boot extends App with SignalHandler {
     var urltop = new java.util.HashMap [String,Long] ()
     URLTopIgnite.forEach(item => {
       urltop.put(item.getKey, item.getValue.toLong)
-      System.out.println (s" Key ${item.getKey} Value ${item.getValue} ")
-
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -192,6 +227,12 @@ object boot extends App with SignalHandler {
 
   }
 
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/photo <- Generate a List with all Photo capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getPhotoTop (req : Request, res : Response) : String = {
 
     logger.info (s"Request getPhotoTop ----> ")
@@ -204,8 +245,6 @@ object boot extends App with SignalHandler {
     var phototop = new java.util.HashMap [String,Long] ()
     PhotoIgnite.forEach(item => {
       phototop.put(item.getKey, item.getValue.toLong)
-      System.out.println (s" Key ${item.getKey} Value ${item.getValue} ")
-
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -215,25 +254,24 @@ object boot extends App with SignalHandler {
 
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
-  // Methods to support the Rest EndPoint
-  //--------------------------------------------------------------------------------------------------------------------
+
+
+  /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/totals <- Generate a List with all Total capture by tw_collector
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
   def getTwTotals (req : Request, res : Response) : String = {
 
 
           logger.info (s"Request getTwInfo ----> ")
 
-
-
           //-----------------------------------------------------------------------------------------------------------
           // Get the Data From Grid
           //-----------------------------------------------------------------------------------------------------------
-
           val TotalIgnite = ignite.getOrCreateCache [String,Long] ("Total")
 
           TotalIgnite.forEach(data => {
-
-              println(s"Key ${data.getKey} Value ${data.getValue} ")
 
               data.getKey match {
                   case "TW"      =>  twStat.Twitter_Total += data.getValue
