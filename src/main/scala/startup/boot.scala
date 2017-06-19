@@ -159,11 +159,19 @@ object boot extends App with SignalHandler {
     //--------------------------------------------------------------------------------------------------------------------
     val emojitop        = ignite.getOrCreateCache [String,Long] ("emojiTop")
 
+  //  val cursor  = emojitop.query ( new ScanQuery [String,Long] ((k,v) => v > 1000)).getAll.stream()
+
 
     var emoji = new java.util.HashMap [String,Long] ()
+
     emojitop.forEach(item => {
+
+      logger.info(s" --> ${item.getKey} === ${item.getValue}")
       emoji.put(item.getKey, item.getValue.toLong)
     })
+
+
+
 
     //--------------------------------------------------------------------------------------------------------------------
     // Response Status Messages
@@ -270,6 +278,7 @@ object boot extends App with SignalHandler {
           //-----------------------------------------------------------------------------------------------------------
           val TotalIgnite = ignite.getOrCreateCache [String,Long] ("Total")
 
+          twStat.init
           TotalIgnite.forEach(data => {
 
               data.getKey match {

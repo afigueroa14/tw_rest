@@ -17,3 +17,5 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.8.1"
 // https://mvnrepository.com/artifact/org.apache.ignite/ignite-log4j
 libraryDependencies += "org.apache.ignite" % "ignite-log4j" % "2.0.0"
 
+// https://mvnrepository.com/artifact/org.apache.ignite/ignite-indexing
+libraryDependencies += "org.apache.ignite" % "ignite-indexing" % "2.0.0"
