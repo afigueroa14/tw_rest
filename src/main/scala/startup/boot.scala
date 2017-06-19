@@ -117,7 +117,6 @@ object boot extends App with SignalHandler {
 
   }
 
-
   /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/hashtags <- Generate a List with all Tags capture by tw_collector
     *
     *  @param req the HTTP Request
@@ -130,12 +129,13 @@ object boot extends App with SignalHandler {
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
     //--------------------------------------------------------------------------------------------------------------------
-    val cacheHashTag        = ignite.cache [String,Long] ("hashTag")
+    val cacheHashTag        = ignite.getOrCreateCache [String,Long] ("hashTag")
 
     var tags = new java.util.HashMap [String,Long] ()
     cacheHashTag.forEach(item => {
       tags.put(item.getKey, item.getValue.toLong)
     })
+
 
     //--------------------------------------------------------------------------------------------------------------------
     // Response Status Messages
@@ -144,7 +144,6 @@ object boot extends App with SignalHandler {
 
 
   }
-
 
   /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/emoji <- Generate a List with all Emoji capture by tw_collector
     *
@@ -158,18 +157,18 @@ object boot extends App with SignalHandler {
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
     //--------------------------------------------------------------------------------------------------------------------
-    val emojitop        = ignite.cache [String,Long] ("emojiTop")
+    val emojitop        = ignite.getOrCreateCache [String,Long] ("emojiTop")
 
 
-    var tags = new java.util.HashMap [String,Long] ()
+    var emoji = new java.util.HashMap [String,Long] ()
     emojitop.forEach(item => {
-      tags.put(item.getKey, item.getValue.toLong)
+      emoji.put(item.getKey, item.getValue.toLong)
     })
 
     //--------------------------------------------------------------------------------------------------------------------
     // Response Status Messages
     //--------------------------------------------------------------------------------------------------------------------
-    ggson.toJson(tags)
+    ggson.toJson(emoji)
 
   }
 
