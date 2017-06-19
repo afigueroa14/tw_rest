@@ -61,7 +61,7 @@ object twStat {
 
     twPerSecond     =  Math.round((Twitter_Total.toDouble / twTime.toDouble))
     twPerMinutes    =  Math.round((Twitter_Total.toDouble / (twTime.toDouble / 60)))
-    twPerHour       =  Math.round((Twitter_Total.toDouble / (twTime.toDouble / 120)))
+    twPerHour       =  Math.round((Twitter_Total.toDouble / (twTime.toDouble / 3600)))
 
   }
 

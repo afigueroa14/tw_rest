@@ -2,12 +2,6 @@
 ### Scala template
 *.class
 *.log
-### Java template
-# Compiled class file
-*.class
-
-# Log file
-*.log
 
 # BlueJ files
 *.ctxt
@@ -26,8 +20,17 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+.idea
+*.iml
+*.xml
+
+
 .DS_Store
-.idea/workspace.xml
 project/target/
+src/.DS_Store
+src/main/.DS_Store
+src/main/resources/.DS_Store
+src/main/scala/.DS_Store
+src/main/scala/startup/.DS_Store
 src/test/
 target/

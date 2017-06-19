@@ -159,6 +159,7 @@ object boot extends App with SignalHandler {
     //--------------------------------------------------------------------------------------------------------------------
     val emojitop        = ignite.getOrCreateCache [String,Long] ("emojiTop")
 
+    // Research a way to sort the set
   //  val cursor  = emojitop.query ( new ScanQuery [String,Long] ((k,v) => v > 1000)).getAll.stream()
 
 
