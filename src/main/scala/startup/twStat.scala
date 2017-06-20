@@ -84,4 +84,4 @@ object twStat {
   *  @param code the code name
   *  @param msg message description for the code
   */
-case class  twStatus (code : String, msg : String)
+case class  twStatus (code : Int, msg : String)

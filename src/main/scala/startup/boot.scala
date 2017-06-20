@@ -8,6 +8,8 @@ import spark.Spark.{get, port}
 import spark.{Request, Response}
 import sun.misc.{Signal, SignalHandler}
 
+import scala.util.Try
+
 
 /** Singleton Application Object Twitter Rest Services Application. Entry Point for the application
   *
@@ -74,12 +76,23 @@ object boot extends App with SignalHandler {
   get("/tw/photo"      , (request: Request, response: Response) => getPhotoTop      (request, response))
   get("/tw/init"       , (request: Request, response: Response) => initTw           (request, response))
 
+  // Capture any Route not processed
+  spark.Spark.notFound ((req: Request, res: Response) => InvalidPath (req,res))
 
+  // Internal Server Error
+  spark.Spark.internalServerError((req: Request, res: Response) => {
+    def InternalError (req: Request, res: Response) : String = {
+      res.`type`("application/json")
+      ggson.toJson(twStatus(500, "Internal Error..."))
+    }
 
+    InternalError(req, res)
+  })
 
-  //--------------------------------------------------------------------------------------------------------------------
-  // Method for Handling the Operating Signal - shutdown
-  //--------------------------------------------------------------------------------------------------------------------
+  /** Method  Method for Handling the Operating Signal - shutdown
+    *
+    *  @param signal Signal of the OS
+    */
   override def handle(signal: Signal): Unit = {
 
     logger.info(s"Shutdown Twitter REST Server...")
@@ -88,6 +101,20 @@ object boot extends App with SignalHandler {
   }
 
 
+  /** Method  Processing Invalid HTTP EntPoint
+    *
+    *  @param req the HTTP Request
+    *  @param res the HTTP Response
+    */
+  def InvalidPath (req : Request, res : Response) : String = {
+
+    logger.info(String.format ("Invalid Path %s ",req.pathInfo()));
+
+    res.status(400);
+    ggson.toJson(twStatus (400,"Invalid Route"))
+
+  }
+
   /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/version <- Get the Versiotn of the Application
     *
     *  @param req the HTTP Request
@@ -95,7 +122,7 @@ object boot extends App with SignalHandler {
     */
   def getTwVersion (req : Request, res : Response) : String = {
     logger.info (s"Request initTw ----> ")
-    ggson.toJson(twStatus ("200", s"Tw-Rest - Version ${Version}"))
+    ggson.toJson(twStatus (200, s"Tw-Rest - Version ${Version}"))
   }
 
 
@@ -112,7 +139,7 @@ object boot extends App with SignalHandler {
     twStat.init
 
     // Response Status Messages
-    ggson.toJson(twStatus ("200", "Success"))
+    ggson.toJson(twStatus (200, "Success"))
 
 
   }
@@ -124,7 +151,14 @@ object boot extends App with SignalHandler {
     */
   def getTwTags (req : Request, res : Response) : String = {
 
-    logger.info (s"Request getTwTags ----> ")
+
+    //---------------------------------------------------------------------
+    // Get the Parameter
+    //---------------------------------------------------------------------
+    val maxvalue = Try(req.queryParams("maxvalue").toInt).getOrElse(-1)
+
+    logger.info (s"Request getTwTags ----> maxvalue ${maxvalue}")
+
 
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
@@ -133,7 +167,13 @@ object boot extends App with SignalHandler {
 
     var tags = new java.util.HashMap [String,Long] ()
     cacheHashTag.forEach(item => {
-      tags.put(item.getKey, item.getValue.toLong)
+
+      // Check if Condition value
+      if (maxvalue > 0) {
+          if (item.getValue >= maxvalue) tags.put(item.getKey, item.getValue)
+      }
+      else tags.put(item.getKey, item.getValue)
+
     })
 
 
@@ -152,26 +192,31 @@ object boot extends App with SignalHandler {
     */
   def getTwEmoji (req : Request, res : Response) : String = {
 
-    logger.info (s"Request getTwEmoji ----> ")
+    //---------------------------------------------------------------------
+    // Get the Parameter
+    //---------------------------------------------------------------------
+    val maxvalue = Try(req.queryParams("maxvalue").toInt).getOrElse(-1)
+
+    logger.info (s"Request getTwEmoji ----> maxvalue ${maxvalue}")
 
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
     //--------------------------------------------------------------------------------------------------------------------
     val emojitop        = ignite.getOrCreateCache [String,Long] ("emojiTop")
 
-    // Research a way to sort the set
-  //  val cursor  = emojitop.query ( new ScanQuery [String,Long] ((k,v) => v > 1000)).getAll.stream()
-
-
     var emoji = new java.util.HashMap [String,Long] ()
 
     emojitop.forEach(item => {
 
       logger.info(s" --> ${item.getKey} === ${item.getValue}")
-      emoji.put(item.getKey, item.getValue.toLong)
+
+      // Check if Condition value
+      if (maxvalue > 0) {
+        if (item.getValue >= maxvalue) emoji.put(item.getKey, item.getValue)
+      }
+      else emoji.put(item.getKey, item.getValue)
+
     })
-
-
 
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -182,6 +227,7 @@ object boot extends App with SignalHandler {
   }
 
 
+
   /** Method  Processing the HTTP EntPoint https://{ServerOP}:{Port}/tw/domaintop <- Generate a List with all Domain capture by tw_collector
     *
     *  @param req the HTTP Request
@@ -189,7 +235,13 @@ object boot extends App with SignalHandler {
     */
   def getTwDomainTop (req : Request, res : Response) : String = {
 
-    logger.info (s"Request getTwDomainTop ----> ")
+
+    //---------------------------------------------------------------------
+    // Get the Parameter
+    //---------------------------------------------------------------------
+    val maxvalue = Try(req.queryParams("maxvalue").toInt).getOrElse(-1)
+
+    logger.info (s"Request getTwDomainTop ----> maxvalue ${maxvalue}")
 
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
@@ -198,7 +250,13 @@ object boot extends App with SignalHandler {
 
     var dtop = new java.util.HashMap [String,Long] ()
     DomainTopIgnite.forEach(item => {
-      dtop.put(item.getKey, item.getValue.toLong)
+
+      // Check if Condition value
+      if (maxvalue > 0) {
+        if (item.getValue >= maxvalue) dtop.put(item.getKey, item.getValue)
+      }
+      else dtop.put(item.getKey, item.getValue)
+
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -216,7 +274,13 @@ object boot extends App with SignalHandler {
     */
   def getTwURLTop (req : Request, res : Response) : String = {
 
-    logger.info (s"Request getTwURLTop ----> ")
+
+    //---------------------------------------------------------------------
+    // Get the Parameter
+    //---------------------------------------------------------------------
+    val maxvalue = Try(req.queryParams("maxvalue").toInt).getOrElse(-1)
+
+    logger.info (s"Request getTwURLTop ----> maxvalue ${maxvalue}")
 
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
@@ -225,7 +289,13 @@ object boot extends App with SignalHandler {
 
     var urltop = new java.util.HashMap [String,Long] ()
     URLTopIgnite.forEach(item => {
-      urltop.put(item.getKey, item.getValue.toLong)
+
+      // Check if Condition value
+      if (maxvalue > 0) {
+        if (item.getValue >= maxvalue) urltop.put(item.getKey, item.getValue)
+      }
+      else urltop.put(item.getKey, item.getValue)
+
     })
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -243,7 +313,13 @@ object boot extends App with SignalHandler {
     */
   def getPhotoTop (req : Request, res : Response) : String = {
 
-    logger.info (s"Request getPhotoTop ----> ")
+
+    //---------------------------------------------------------------------
+    // Get the Parameter
+    //---------------------------------------------------------------------
+    val maxvalue = Try(req.queryParams("maxvalue").toInt).getOrElse(-1)
+
+    logger.info (s"Request getPhotoTop ----> maxvalue ${maxvalue}")
 
     //--------------------------------------------------------------------------------------------------------------------
     // Get the Data From Grid
@@ -252,7 +328,13 @@ object boot extends App with SignalHandler {
 
     var phototop = new java.util.HashMap [String,Long] ()
     PhotoIgnite.forEach(item => {
-      phototop.put(item.getKey, item.getValue.toLong)
+
+      // Check if Condition value
+      if (maxvalue > 0) {
+        if (item.getValue >= maxvalue) phototop.put(item.getKey, item.getValue)
+      }
+      else phototop.put(item.getKey, item.getValue)
+
     })
 
     //--------------------------------------------------------------------------------------------------------------------
